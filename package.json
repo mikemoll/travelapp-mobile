@@ -8,6 +8,7 @@
   },
   "main": "./node_modules/react-native-scripts/build/bin/crna-entry.js",
   "scripts": {
+    "reset": "watchman watch-del-all && rm -rf node_modules/ && npm cache clean && rm -rf $TMPDIR/react-* && npm install && npm cache clean && npm install uuid && npm start -- --reset-cache",
     "start": "react-native-scripts start",
     "eject": "react-native-scripts eject",
     "android": "react-native-scripts android",
@@ -17,9 +18,26 @@
   "author": "Bartek Kus <bartekus@gmail.com> (https://bartekus.com)",
   "license": "MIT",
   "dependencies": {
+    "@expo/vector-icons": "^5.0.0",
+    "apollo-client": "^1.4.2",
     "expo": "^17.0.0",
+    "graphql": "^0.10.1",
+    "graphql-tag": "^2.2.2",
+    "immutability-helper": "^2.2.2",
+    "lodash": "^4.17.4",
+    "moment": "^2.18.1",
+    "prop-types": "^15.5.10",
     "react": "16.0.0-alpha.6",
-    "react-native": "^0.44.0"
+    "react-apollo": "^1.4.2",
+    "react-native": "^0.44.0",
+    "react-navigation": "^1.0.0-beta.11",
+    "react-redux": "^5.0.5",
+    "redux": "^3.6.0",
+    "redux-devtools-extension": "^2.13.2",
+    "redux-persist": "^4.8.0",
+    "redux-thunk": "^2.2.0",
+    "seamless-immutable": "^7.1.2",
+    "subscriptions-transport-ws-authy": "^0.5.5"
   },
   "devDependencies": {
     "react-native-scripts": "0.0.31",
