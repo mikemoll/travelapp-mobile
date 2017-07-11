@@ -1,5 +1,10 @@
 {
   "expo": {
-    "sdkVersion": "17.0.0"
-  }
+    "sdkVersion": "18.0.0",
+    "packagerOpts": {
+      "assetExts": ["ttf"]
+    }
+  },
+  "name": "travelapp",
+  "displayName": "travelapp"
 }

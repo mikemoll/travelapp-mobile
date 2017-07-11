@@ -1,53 +1,55 @@
 import React, { Component } from 'react';
+import { AsyncStorage } from 'react-native';
 import { ApolloProvider } from 'react-apollo';
-import { composeWithDevTools } from 'redux-devtools-extension';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
-import { SubscriptionClient, addGraphQLSubscriptions } from 'subscriptions-transport-ws-authy';
+import { SubscriptionClient, addGraphQLSubscriptions } from 'subscriptions-transport-ws';
 import { persistStore, autoRehydrate } from 'redux-persist';
 import thunk from 'redux-thunk';
-import { AsyncStorage } from 'react-native';
+import _ from 'lodash';
 
-import AppWithNavigationState, { navigationReducer } from './components/routes';
-import auth from './reducers/auth';
-import { logout } from './actions/auth';
+import AppWithNavigationState, { navigationReducer } from './src/navigation';
+import auth from './src/reducers/auth.reducer';
+import { logout } from './src/actions/auth.actions';
 
-const networkInterface = createNetworkInterface({ uri: 'http://192.168.1.74:8000/graphql' });
+const networkInterface = createNetworkInterface({ uri: 'http://192.168.1.64:8080/graphql' });
 
 // middleware for requests
 networkInterface.use([{
-  applyMiddleware (req, next) {
+  applyMiddleware(req, next) {
     if (!req.options.headers) {
-      req.options.headers = {}; // eslint-disable-line no-param-reassign
+      req.options.headers = {};
     }
-
     // get the authentication token from local storage if it exists
-    const jwt = store.getState().auth.jwt; // eslint-disable-line no-use-before-define
+    const jwt = store.getState().auth.jwt;
     if (jwt) {
-      req.options.headers.authorization = `Bearer ${jwt}`; // eslint-disable-line no-param-reassign
+      req.options.headers.authorization = `Bearer ${jwt}`;
     }
     next();
   }
 }]);
 
-// middleware for responses
+// afterware for responses
 networkInterface.useAfter([{
-  applyAfterware ({ response }, next) {
+  applyAfterware({ response }, next) {
     if (!response.ok) {
       response.clone().text().then((bodyText) => {
-        // eslint-disable-next-line no-console
         console.log(`Network Error: ${response.status} (${response.statusText}) - ${bodyText}`);
         next();
       });
     } else {
+      let isUnauthorized = false;
       response.clone().json().then(({ errors }) => {
         if (errors) {
-          errors.map((e) => {
-            if (e.message === 'Unauthorized') {
-              return store.dispatch(logout()); // eslint-disable-line no-use-before-define
-            }
-            return console.log('GraphQL Error:', e.message); // eslint-disable-line no-console
-          });
+          console.log('GraphQL Errors:', errors);
+          if (_.some(errors, { message: 'Unauthorized' })) {
+            isUnauthorized = true;
+          }
+        }
+      }).then(() => {
+        if (isUnauthorized) {
+          store.dispatch(logout());
         }
         next();
       });
@@ -56,23 +58,14 @@ networkInterface.useAfter([{
 }]);
 
 // Create WebSocket client
-const wsClient = new SubscriptionClient('ws://192.168.1.74:8000/subscriptions', {
+export const wsClient = new SubscriptionClient('ws://192.168.1.64:8080/subscriptions', {
   reconnect: true,
-  connectionParams: {
-    // Pass any arguments you want for initialization
-  }
-});
-
-wsClient.use([{
-  applyMiddleware (options, next) {
+  connectionParams() {
     // get the authentication token from local storage if it exists
-    const jwt = store.getState().auth.jwt; // eslint-disable-line no-use-before-define
-    if (jwt) {
-      options.context = { jwt }; // eslint-disable-line no-param-reassign
-    }
-    next();
-  }
-}]);
+    return { jwt: store.getState().auth.jwt };
+  },
+  lazy: true
+});
 
 // Extend the network interface with the WebSocket
 const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(
@@ -81,31 +74,30 @@ const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(
 );
 
 export const client = new ApolloClient({
-  networkInterface: networkInterfaceWithSubscriptions
+  networkInterface: networkInterfaceWithSubscriptions,
 });
 
 const store = createStore(
   combineReducers({
     apollo: client.reducer(),
-    auth,
-    nav: navigationReducer
+    nav: navigationReducer,
+    auth
   }),
   {}, // initial state
   composeWithDevTools(
     applyMiddleware(client.middleware(), thunk),
     autoRehydrate()
-  )
+  ),
 );
 
 // persistent storage
 persistStore(store, {
   storage: AsyncStorage,
-  blacklist: ['apollo'] // don't persist apollo
+  blacklist: ['apollo'] // don't persist apollo for now
 });
 
-// eslint-disable-next-line react/prefer-stateless-function
 export default class App extends Component {
-  render () {
+  render() {
     return (
       <ApolloProvider store={store} client={client}>
         <AppWithNavigationState />

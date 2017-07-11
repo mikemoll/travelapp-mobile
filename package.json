@@ -19,17 +19,20 @@
   "license": "MIT",
   "dependencies": {
     "@expo/vector-icons": "^5.0.0",
-    "apollo-client": "^1.4.2",
-    "expo": "^17.0.0",
-    "graphql": "^0.10.1",
-    "graphql-tag": "^2.2.2",
+    "apollo-client": "^1.4.0",
+    "expo": "^18.0.3",
+    "graphql-tag": "^2.2.1",
     "immutability-helper": "^2.2.2",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "prop-types": "^15.5.10",
-    "react": "16.0.0-alpha.6",
+    "randomcolor": "^0.5.2",
+    "react": "16.0.0-alpha.12",
     "react-apollo": "^1.4.2",
-    "react-native": "^0.44.0",
+    "react-native": "^0.45.1",
+    "react-native-alphabetlistview": "^0.2.0",
+    "react-native-reversed-flat-list": "^1.0.1",
+    "react-native-vector-icons": "^4.2.0",
     "react-navigation": "^1.0.0-beta.11",
     "react-redux": "^5.0.5",
     "redux": "^3.6.0",
@@ -37,11 +40,11 @@
     "redux-persist": "^4.8.0",
     "redux-thunk": "^2.2.0",
     "seamless-immutable": "^7.1.2",
-    "subscriptions-transport-ws-authy": "^0.5.5"
+    "subscriptions-transport-ws": "^0.7.1"
   },
   "devDependencies": {
-    "react-native-scripts": "0.0.31",
-    "jest-expo": "~1.0.1",
-    "react-test-renderer": "16.0.0-alpha.6"
+    "react-native-scripts": "0.0.40",
+    "jest-expo": "~18.0.0",
+    "react-test-renderer": "16.0.0-alpha.12"
   }
 }

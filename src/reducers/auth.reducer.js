@@ -11,14 +11,12 @@ const auth = (state = initialState, action) => {
   switch (action.type) {
     case REHYDRATE:
       // convert persisted data to Immutable and confirm rehydration
-      return Immutable(action.payload.auth || state).set('loading', false);
+      return Immutable(action.payload.auth || state)
+        .set('loading', false);
     case SET_CURRENT_USER:
       return state.merge(action.user);
     case LOGOUT:
-      return state.merge({
-        id: null,
-        jwtToken: null,
-      });
+      return Immutable({ loading: false });
     default:
       return state;
   }
